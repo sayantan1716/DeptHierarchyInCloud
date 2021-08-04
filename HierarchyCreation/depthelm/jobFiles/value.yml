@@ -1,0 +1,66 @@
+app:
+  key: deployDept.sh
+  name: deployDept.sh
+  version: deployDept.sh
+  
+replicas: 1
+autoscale:
+  enabled: false
+  replicas:
+    min: 1
+    max: 4
+  target:
+    cpu: 50
+	
+image:
+  registry: .azurecr.io
+  username: deployDept.sh
+  password: deployDept.sh
+  repository: Department-service
+  tag: deployDept.sh
+  
+container:
+  port: 80
+  probes:
+    liveness:
+      enabled: true
+      delay: 250
+      period: 15
+      timeout: 3
+    readiness:
+      enabled: true 
+      delay: 120
+      period: 15
+      timeout: 3
+  resources:
+    requests:
+      cpu: 1024m
+      memory: 1024Mi
+    limits:
+      cpu: 2048m
+      memory: 2048Mi
+	  
+service:
+  type: LoadBalancer
+  port: 80
+  internal: true
+
+ingress:
+  internal:
+    enabled: false
+    ssl:
+      redirect: false
+  public:
+    enabled: true
+    ssl:
+      redirect: false
+	  
+postgresql:
+  enabled: true
+  host: deployApp.sh
+  port: deployApp.sh
+  database: deployApp.sh
+  username: deployApp.sh
+  password: deployApp.sh 
+  init: true
+  recreate: false

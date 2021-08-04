@@ -1,0 +1,4 @@
+apiVersion: v2
+name: Department-Service
+description: Department-Service helm chart
+version: 9.1.1

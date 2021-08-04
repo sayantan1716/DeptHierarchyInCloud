@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Value.replicas }}
+  strategy:
+    type: {{ .Value.strategy.type }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Chart.Name }}.registry
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ include "image" . }}
+          resources:
+            requests:
+              cpu: {{ .Value.container.resources.requests.cpu }}
+              memory: {{ .Value.container.resources.requests.memory }}
+            limits:
+              cpu: {{ .Value.container.resources.limits.cpu }}
+              memory: {{ .Value.container.resources.limits.memory }}
+         env:
+            - name: SERVER_PORT
+              value: {{ .Value.container.port | quote }}
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Value.spring.profiles.active }}
+              value: {{ false | quote }}
+            - name: SPRING_CLOUD_KUBERNETES_RELOAD_ENABLED
+              value: {{ true | quote }}
+            - name: SPRING_CLOUD_KUBERNETES_CONFIG_ENABLED
+              value: {{ true | quote }}
+            - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
+              value: {{ .Chart.Name }}
+            - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAMESPACE
+              value: {{ .Release.Namespace }}
+          {{- end }}
+            - name: POSTGRESQL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}.postgresql
+                  key: host
+            - name: POSTGRESQL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}.postgresql
+                  key: port
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}.postgresql
+                  key: database
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}.postgresql
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}.postgresql
+                  key: password
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/${POSTGRESQL_DATABASE}
+          {{- end }}
+        {{- if .Value.container.probes.liveness.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Value.container.probes.liveness.path }}
+              port: {{ .Value.container.port }}
+            initialDelaySeconds: {{ .Value.container.probes.liveness.delay }}
+            timeoutSeconds: {{ .Value.container.probes.liveness.timeout }}
+            periodSeconds: {{ .Value.container.probes.liveness.period }}
+        {{- end }}
+        {{- if .Value.container.probes.readiness.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Value.container.probes.readiness.path }}
+              port: {{ .Value.container.port }}
+            initialDelaySeconds: {{ .Value.container.probes.readiness.delay }}
+            timeoutSeconds: {{ .Value.container.probes.readiness.timeout }}
+            periodSeconds: {{ .Value.container.probes.readiness.period }}
+        {{- end }}
+ 

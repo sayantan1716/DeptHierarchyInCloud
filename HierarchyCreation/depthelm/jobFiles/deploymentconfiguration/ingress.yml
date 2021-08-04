@@ -1,0 +1,19 @@
+{{- if .Values.ingress.public.enabled }}
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app: {{ .Chart.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    version: {{ .Chart.AppVersion }}
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              serviceName: {{ .Chart.Name }}
+              servicePort: {{ .Values.service.port }}
+            path: /{{ .Chart.Name }}
+---
+{{- end }}
