@@ -7,6 +7,7 @@ variable "app_location" {
 }
 
 variable "app_key" {
+
   
 }
 
@@ -26,11 +27,11 @@ variable "app_subscribed_id" {
   
 }
 
-variable "app_client_id" {
+variable "app_client_username" {
  
 }
 
-variable "app_client_secret" {
+variable "app_client_password" {
  
 }
 
@@ -158,11 +159,11 @@ variable "aks_subscribed_id" {
  
 }
 
-variable "aks_client_id" {
+variable "aks_client_username" {
  
 }
 
-variable "aks_client_secret" {
+variable "aks_client_password" {
   
 }
 
